@@ -1,13 +1,32 @@
 from database import SessionLocal
-from models import Keeper
+from models import Keeper, Admin, Observation
 
 
 db = SessionLocal()
 
 keepers = [
-    Keeper(username="Santanu", keeper_id="ZK001"),
-    Keeper(username="Rahul", keeper_id="ZK002"),
-    Keeper(username="Amit", keeper_id="ZK003"),
+    Admin(username="admin1",
+    admin_key="admin123",
+    zoo_id="Z001"),
+
+    Keeper(
+        username = "zoo_keeper1",
+        keeper_id = "1",
+        zoo_id = "Z001"
+    ),
+
+        Keeper(
+        username = "zoo_keeper2",
+        keeper_id = "2",
+        zoo_id = "Z001"
+    ),
+
+        Keeper(
+        username = "zoo_keeper3",
+        keeper_id = "3",
+        zoo_id = "Z002"
+    ),
+    
 ]
 
 db.add_all(keepers)
