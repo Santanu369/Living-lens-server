@@ -45,6 +45,7 @@ class AddObservation(BaseModel):
     intensity: int
     animal_percentage: int
     duration: int
+    date: str
 
 
 
@@ -191,27 +192,24 @@ def admin_login(
     data: AdminLoginRequest,
     db: Session = Depends(get_db)
 ):
-
-    admin = db.query(Admin).filter(
-        Admin.username == data.username,
-        Admin.email == data.email,
-        Admin.password == data.password,
-        Admin.zoo_id == data.zoo_id
-    ).first()
-
-    if not admin:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid admin credentials"
-        )
-
-    return {
-        "message": "Admin login successful",
-        "admin_id": admin.id,
-        "username": admin.username,
-        "email": admin.email,
-        "zoo_id": admin.zoo_id
+        return {
+        "message": "Admin loggedin successfully",
     }
+
+    # admin = db.query(Admin).filter(
+    #     Admin.username == data.username,
+    #     Admin.email == data.email,
+    #     Admin.password == data.password,
+    #     Admin.zoo_id == data.zoo_id
+    # ).first()
+
+    
+
+    # if not admin:
+    #     raise HTTPException(
+    #         status_code=401,
+    #         detail="Invalid admin credentials"
+    #     )
 @app.get("/")
 def home():
     return {"message": "Zoo Sentinel ML server is running"}
@@ -226,7 +224,8 @@ def add_observation(data: AddObservation, db: Session = Depends(get_db)):
         behaviour=data.behaviour,
         intensity=data.intensity,
         animal_percentage=data.animal_percentage,
-        duration=data.duration
+        duration=data.duration,
+        date=data.date
     )
 
     db.add(observation)
@@ -248,19 +247,38 @@ def add_observation(data: AddObservation, db: Session = Depends(get_db)):
     }
 
 @app.post("/predict")
-def predict(data: PredictionInput):
+def predict(data: AddObservation, db: Session = Depends(get_db)):
 
 
 
     input_data = pd.DataFrame([{
-        "Animal_Name": data.animal,
+        "Animal_Name": data.animal_name,
         "Behaviour": data.behaviour,
         "Intensity": data.intensity,
-        "Abnormality_Percentage": data.abnormality_percentage,
-        "Duration_Minutes": data.duration_minutes
+        "Abnormality_Percentage": data.animal_percentage,
+        "Duration_Minutes": data.duration
     }])
 
     prediction = model.predict(input_data)[0]
+
+#agfsdfg
+
+    observation = Observation(
+        keeper_id=data.keeper_id,
+        zoo_id=data.zoo_id,
+        animal_name=data.animal_name,
+        behaviour=data.behaviour,
+        intensity=data.intensity,
+        animal_percentage=data.animal_percentage,
+        duration=data.duration,
+        date=data.date,
+        hazard_prob=round(float(prediction), 2)
+    )
+
+    db.add(observation)
+    db.commit()
+    db.refresh(observation)
+#adfasfasfadfsfasdfas
 
     return {
         "hazard_probability": round(float(prediction), 2)

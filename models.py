@@ -39,3 +39,5 @@ class Observation(Base):
     intensity = Column(Integer, nullable=False)
     animal_percentage = Column(Integer, nullable=False)
     duration = Column(Integer, nullable=False)
+    date = Column(String, nullable=False)
+    hazard_prob = Column(Float, nullable=False)
