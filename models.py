@@ -39,4 +39,3 @@ class Observation(Base):
     intensity = Column(Integer, nullable=False)
     animal_percentage = Column(Integer, nullable=False)
     duration = Column(Integer, nullable=False)
-    time =  Column(String, nullable=False)
